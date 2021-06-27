@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 import pytest  # type: ignore # see https://github.com/pytest-dev/pytest/issues/3342
 
 from kasa import (
+    Auth,
     Discover,
     SmartBulb,
     SmartDimmer,
@@ -23,6 +24,7 @@ SUPPORTED_DEVICES = glob.glob(
     os.path.dirname(os.path.abspath(__file__)) + "/fixtures/*.json"
 )
 
+USER_INFO = ('myuser', 'mypass')
 
 LIGHT_STRIPS = {"KL430"}
 BULBS = {"KL60", "LB100", "LB120", "LB130", "KL120", "KL130", *LIGHT_STRIPS}
@@ -172,6 +174,13 @@ def dev(request):
 
     return get_device_for_file(file)
 
+@pytest.fixture()
+def auth():
+    """Authentication fixture.
+    
+    Provides an instance of the Auth class with prefilled user and password details.
+    """
+    return Auth(USER_INFO[0], USER_INFO[1])
 
 def pytest_addoption(parser):
     parser.addoption("--ip", action="store", default=None, help="run against device")

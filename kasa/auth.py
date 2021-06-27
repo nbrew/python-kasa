@@ -8,14 +8,23 @@ class Auth:
     def __init__(self, user: str = "", password: str = ""):
         self.user = user
         self.password = password
-        self.md5user = md5(user.encode()).digest()
-        self.md5password = md5(password.encode()).digest()
-        self.md5auth = md5(self.md5user + self.md5password).digest()
 
     def authenticator(self):
         """Return the KLAP authenticator for these credentials."""
-        return self.md5auth
+        return self.md5auth()
 
     def owner(self):
         """Return the MD5 hash of the username in this object."""
-        return self.md5user
+        return self.md5user()
+
+    def md5user(self):
+        """Return md5 digest of user."""
+        return md5(self.user.encode()).digest()
+
+    def md5password(self):
+        """Return MD5 digest of password."""
+        return md5(self.password.encode()).digest()
+
+    def md5auth(self):
+        """Return MD5 digest of user and password combined."""
+        return md5(self.md5user() + self.md5password()).digest()
