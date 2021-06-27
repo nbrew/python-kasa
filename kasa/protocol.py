@@ -62,7 +62,7 @@ class TPLinkProtocol:
         raise SmartDeviceException("Not reached")
 
     async def _ask(self, request: str) -> str:
-        raise SmartDeviceException("ask should be overridden")
+        raise NotImplementedError("ask should be overridden")
 
 
 class TPLinkSmartHomeProtocol(TPLinkProtocol):

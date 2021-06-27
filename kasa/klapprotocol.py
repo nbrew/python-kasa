@@ -79,6 +79,7 @@ class TPLinkKLAP(TPLinkProtocol):
                 server_hash.hex(),
             )
             raise SmartDeviceException("Server response doesn't match our challenge")
+
         else:
             _LOGGER.debug("handshake1 hashes match")
 
@@ -115,10 +116,12 @@ class TPLinkKLAP(TPLinkProtocol):
         signature = self._sha256(
             self.hmac_key + seq.to_bytes(4, "big", signed=True) + ciphertext
         )
+
         return signature + ciphertext
 
     def _decrypt(self, payload: bytes, iv: bytes, seq: int) -> bytes:
         cipher = AES.new(self.encrypt_key, AES.MODE_CBC, iv)
+
         # In theory we should verify the hmac here too
         return Padding.unpad(cipher.decrypt(payload[32:]), AES.block_size)
 
@@ -134,7 +137,7 @@ class TPLinkKLAP(TPLinkProtocol):
 
             msg_seq = self.seq
             msg_iv = self.iv + msg_seq.to_bytes(4, "big", signed=True)
-            payload = self._encrypt(request.encode("utf-8"), msg_iv, msg_seq)
+            payload = self._encrypt(request.encode(), msg_iv, msg_seq)
 
             url = f"http://{self.host}/app/request"
             resp = await session.post(url, params={"seq": msg_seq}, data=payload)
@@ -149,7 +152,9 @@ class TPLinkKLAP(TPLinkProtocol):
                     "Device responded with %d to request with seq %d"
                     % (resp.status, msg_seq)
                 )
+
             response = await resp.read()
+
             return self._decrypt(response, msg_iv, msg_seq).decode("utf-8")
         finally:
             await session.close()

@@ -263,7 +263,7 @@ class SmartDevice:
         request = self._create_request(target, cmd, arg, child_ids)
 
         try:
-            response = await self.protocol.query(request=request)
+            response = await self.protocol.query(request)
         except Exception as ex:
             raise SmartDeviceException(f"Communication error on {target}:{cmd}") from ex
 
@@ -307,15 +307,15 @@ class SmartDevice:
 
         # Newer HS100 firmware doesn't like emeter requests
         if self._last_update is None:
-            self._last_update = await self.protocol.query(request = req)
+            self._last_update = await self.protocol.query(req)
             self._sys_info = self._last_update["system"]["get_sysinfo"]
             if not self.has_emeter:
-            	return
+                return
 
         if self.has_emeter:
             req.update(self._create_emeter_request())
 
-        self._last_update = await self.protocol.query(request=req)
+        self._last_update = await self.protocol.query(req)
         # TODO: keep accessible for tests
         self._sys_info = self._last_update["system"]["get_sysinfo"]
 
